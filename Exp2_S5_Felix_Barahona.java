@@ -4,8 +4,10 @@
  */
 package teatro;
 
-/**
- *
+/*
+ * Sistema de Ventas de Entradas - Teatro Moro
+ * Experiencia 2 - Semana 5
+ * Fundamentos de Programacion (PRY2201)
  * @author felix
  */
 
@@ -22,6 +24,8 @@ public class TeatroMoro {
     private String ubicacion;
     private double precioBase;
     private double precioFinal;
+    private String tipoCliente;
+    private int numeroAsiento;
     
     // Arreglos para almacenar informacion de entradas vendidas (maximo 100)
     private static int[] numerosEntradas = new int[100];
@@ -29,6 +33,7 @@ public class TeatroMoro {
     private static String[] tiposCliente = new String[100];
     private static double[] preciosBase = new double[100];
     private static double[] preciosFinales = new double[100];
+    private static int[] asientosOcupados = new int[100];
     
     // Arreglos para representar los asientos del teatro
     private static boolean[] asientosVIP = new boolean[20];
@@ -50,9 +55,10 @@ public class TeatroMoro {
     
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        TeatroMoro sistema = new TeatroMoro(); // Crear instancia de la clase
         boolean continuar = true;
         
-        System.out.println("Bienvenido al Sistema de Ventas de " + NOMBRE_TEATRO);
+        System.out.println("¡Bienvenido al Sistema de Ventas de " + NOMBRE_TEATRO + "!");
         System.out.println("Capacidad total: " + CAPACIDAD_TOTAL + " asientos");
         
         while (continuar) {
@@ -71,16 +77,16 @@ public class TeatroMoro {
                 
                 switch (opcion) {
                     case 1:
-                        venderEntrada(scanner);
+                        sistema.venderEntrada(scanner); 
                         break;
                     case 2:
-                        mostrarPromociones();
+                        sistema.mostrarPromociones();
                         break;
                     case 3:
-                        buscarEntradas(scanner);
+                        sistema.buscarEntradas(scanner);
                         break;
                     case 4:
-                        eliminarEntrada(scanner);
+                        sistema.eliminarEntrada(scanner);
                         break;
                     case 5:
                         System.out.println("Gracias por utilizar el sistema. Hasta pronto!");
@@ -99,17 +105,13 @@ public class TeatroMoro {
     }
     
     // Metodo para vender entradas
-    private static void venderEntrada(Scanner scanner) {
+    private void venderEntrada(Scanner scanner) {
         boolean seguirComprando = true;
         
         while (seguirComprando) {
             // Variables locales para almacenar temporalmente datos
-            String ubicacion;
-            String tipoCliente;
             int edad;
-            double precioBase = 0;
             double descuento = 0;
-            double precioFinal;
             boolean descuentoCumpleanos = false;
             
             // Mostrar plano del teatro
@@ -125,19 +127,19 @@ public class TeatroMoro {
             int opcionUbicacion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
             
-            // Asignar ubicacion y precio base
+            // Asignar ubicacion y precio base a las variables de instancia
             switch (opcionUbicacion) {
                 case 1:
-                    ubicacion = "VIP";
-                    precioBase = PRECIO_VIP;
+                    this.ubicacion = "VIP";
+                    this.precioBase = PRECIO_VIP;
                     break;
                 case 2:
-                    ubicacion = "Platea";
-                    precioBase = PRECIO_PLATEA;
+                    this.ubicacion = "Platea";
+                    this.precioBase = PRECIO_PLATEA;
                     break;
                 case 3:
-                    ubicacion = "General";
-                    precioBase = PRECIO_GENERAL;
+                    this.ubicacion = "General";
+                    this.precioBase = PRECIO_GENERAL;
                     break;
                 default:
                     System.out.println("Ubicacion no valida. Volviendo al menu principal.");
@@ -146,11 +148,11 @@ public class TeatroMoro {
             
             // Solicitar numero de asiento
             System.out.print("Ingrese numero de asiento: ");
-            int numeroAsiento = scanner.nextInt();
+            this.numeroAsiento = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
             
             // Verificar disponibilidad del asiento
-            if (!verificarDisponibilidadAsiento(ubicacion, numeroAsiento)) {
+            if (!verificarDisponibilidadAsiento(this.ubicacion, this.numeroAsiento)) {
                 System.out.println("El asiento seleccionado no esta disponible o no existe.");
                 
                 // Preguntar si desea intentar con otro asiento
@@ -170,73 +172,83 @@ public class TeatroMoro {
             
             // Determinar tipo de cliente y descuento
             if (edad >= 60) {
-                tipoCliente = "Tercera Edad";
-                descuento = precioBase * DESCUENTO_TERCERA_EDAD;
+                this.tipoCliente = "Tercera Edad";
+                descuento = this.precioBase * DESCUENTO_TERCERA_EDAD;
             } else if (edad <= 18) {
-                tipoCliente = "Estudiante";
-                descuento = precioBase * DESCUENTO_ESTUDIANTE;
+                this.tipoCliente = "Estudiante";
+                descuento = this.precioBase * DESCUENTO_ESTUDIANTE;
             } else {
-                tipoCliente = "Regular";
+                this.tipoCliente = "Regular";
             }
             
             // Preguntar si es cumpleanos
-            System.out.print("Es el cumpleanos del cliente? (S/N): ");
+            System.out.print("¿Es el cumpleanos del cliente? (S/N): ");
             String respuestaCumpleanos = scanner.nextLine().toUpperCase();
             
             if (respuestaCumpleanos.equals("S")) {
                 descuentoCumpleanos = true;
-                System.out.println("Feliz cumpleanos! Promocion aplicada: Una entrada gratis y otra a mitad de precio.");
+                System.out.println("¡Feliz cumpleanos! Promocion aplicada: Una entrada gratis y otra a mitad de precio.");
                 
-                // Si ya tiene descuento por edad, informar que no es acumulable
-                if (descuento > 0) {
-                    System.out.println("Nota: Los descuentos no son acumulables. Se aplicara el descuento mas beneficioso.");
-                    // Comparar descuentos y elegir el mejor
-                    double descuentoCumple = precioBase * 0.5; // 50% de descuento (mitad de precio)
-                    if (descuentoCumple > descuento) {
-                        descuento = descuentoCumple;
-                        tipoCliente += " (Promocion Cumpleanos)";
-                    }
+                // Informar que los descuentos no son acumulables
+                System.out.println("IMPORTANTE: Los descuentos no son acumulables. Se aplicara el descuento mas beneficioso.");
+                
+                // Calcular descuento por cumpleaños (mitad de precio)
+                double descuentoCumple = this.precioBase * 0.5; // 50% de descuento
+                
+                // Comparar descuentos y elegir el más beneficioso
+                if (descuentoCumple > descuento) {
+                    descuento = descuentoCumple;
+                    this.tipoCliente += " (Promocion Cumpleanos)";
                 } else {
-                    // Aplicar descuento de cumpleanos (mitad de precio)
-                    descuento = precioBase * 0.5;
-                    tipoCliente += " (Promocion Cumpleanos)";
+                    // Mantener el descuento por edad que es más beneficioso
+                    System.out.println("Se aplicara el descuento por " + this.tipoCliente + " ya que es mas beneficioso.");
                 }
+            } else if (descuento > 0) {
+                // Si no es cumpleaños pero tiene descuento por edad, informar que no hay otros descuentos acumulables
+                System.out.println("IMPORTANTE: Se aplica descuento por " + this.tipoCliente + ". Los descuentos no son acumulables.");
             }
             
-            // Calcular precio final
-            precioFinal = precioBase - descuento;
+            // Calcular precio final y asignarlo a la variable de instancia
+            this.precioFinal = this.precioBase - descuento;
             
             // Marcar asiento como ocupado
-            marcarAsientoOcupado(ubicacion, numeroAsiento);
+            marcarAsientoOcupado(this.ubicacion, this.numeroAsiento);
             
-            // Guardar informacion de la entrada
+            // Incrementar contador y asignar número de entrada a la variable de instancia
             totalEntradasVendidas++;
+            this.numeroEntrada = totalEntradasVendidas;
+            
+            // Guardar informacion de la entrada en los arreglos
             int indice = totalEntradasVendidas - 1;
-            numerosEntradas[indice] = totalEntradasVendidas;
-            ubicacionesEntradas[indice] = ubicacion;
-            tiposCliente[indice] = tipoCliente;
-            preciosBase[indice] = precioBase;
-            preciosFinales[indice] = precioFinal;
+            numerosEntradas[indice] = this.numeroEntrada;
+            ubicacionesEntradas[indice] = this.ubicacion;
+            tiposCliente[indice] = this.tipoCliente;
+            preciosBase[indice] = this.precioBase;
+            preciosFinales[indice] = this.precioFinal;
+            asientosOcupados[indice] = this.numeroAsiento;
             
             // Actualizar estadisticas
-            totalIngresos += precioFinal;
+            totalIngresos += this.precioFinal;
             if (descuento > 0) {
                 totalDescuentosAplicados++;
             }
             
-            // Mostrar resumen de la venta
+            // Mostrar resumen de la venta usando variables de instancia
             System.out.println("\n===== RESUMEN DE VENTA =====");
-            System.out.println("Numero de entrada: " + totalEntradasVendidas);
-            System.out.println("Ubicacion: " + ubicacion);
-            System.out.println("Asiento: " + numeroAsiento);
-            System.out.println("Tipo de cliente: " + tipoCliente);
-            System.out.println("Precio base: $" + precioBase);
-            System.out.println("Descuento aplicado: $" + descuento);
-            System.out.println("Precio final: $" + precioFinal);
+            System.out.println("Numero de entrada: " + this.numeroEntrada);
+            System.out.println("Ubicacion: " + this.ubicacion);
+            System.out.println("Asiento: " + this.numeroAsiento);
+            System.out.println("Tipo de cliente: " + this.tipoCliente);
+            System.out.println("Precio base: $" + this.precioBase);
+            System.out.println("Descuento aplicado: $" + (this.precioBase - this.precioFinal));
+            System.out.println("Precio final: $" + this.precioFinal);
             
             // Si es cumpleanos, informar sobre la entrada gratis
             if (descuentoCumpleanos) {
-                System.out.println("\nAdemas recibe una entrada GRATIS para la misma ubicacion!");
+                System.out.println("\n¡Ademas recibe una entrada GRATIS para la misma ubicacion!");
+                
+                // Crear una nueva instancia para la entrada gratis
+                TeatroMoro entradaGratis = new TeatroMoro();
                 
                 // Solicitar numero de asiento para la entrada gratis
                 System.out.print("Ingrese numero de asiento para la entrada gratis: ");
@@ -244,29 +256,41 @@ public class TeatroMoro {
                 scanner.nextLine(); // Limpiar buffer
                 
                 // Verificar disponibilidad del asiento
-                if (!verificarDisponibilidadAsiento(ubicacion, asientoGratis)) {
+                if (!verificarDisponibilidadAsiento(this.ubicacion, asientoGratis)) {
                     System.out.println("El asiento seleccionado no esta disponible o no existe. No se pudo asignar la entrada gratis.");
                 } else {
+                    // Configurar la entrada gratis
+                    entradaGratis.ubicacion = this.ubicacion;
+                    entradaGratis.numeroAsiento = asientoGratis;
+                    entradaGratis.tipoCliente = this.tipoCliente + " (Gratis por Cumpleanos)";
+                    entradaGratis.precioBase = this.precioBase;
+                    entradaGratis.precioFinal = 0; // Gratis
+                    
                     // Marcar asiento como ocupado
-                    marcarAsientoOcupado(ubicacion, asientoGratis);
+                    marcarAsientoOcupado(entradaGratis.ubicacion, entradaGratis.numeroAsiento);
                     
-                    // Guardar informacion de la entrada gratis
+                    // Incrementar contador y asignar número de entrada
                     totalEntradasVendidas++;
-                    indice = totalEntradasVendidas - 1;
-                    numerosEntradas[indice] = totalEntradasVendidas;
-                    ubicacionesEntradas[indice] = ubicacion;
-                    tiposCliente[indice] = tipoCliente + " (Gratis por Cumpleanos)";
-                    preciosBase[indice] = precioBase;
-                    preciosFinales[indice] = 0; // Gratis
+                    entradaGratis.numeroEntrada = totalEntradasVendidas;
                     
-                    System.out.println("Entrada gratis asignada al asiento " + asientoGratis + " en ubicacion " + ubicacion);
+                    // Guardar informacion de la entrada gratis en los arreglos
+                    indice = totalEntradasVendidas - 1;
+                    numerosEntradas[indice] = entradaGratis.numeroEntrada;
+                    ubicacionesEntradas[indice] = entradaGratis.ubicacion;
+                    tiposCliente[indice] = entradaGratis.tipoCliente;
+                    preciosBase[indice] = entradaGratis.precioBase;
+                    preciosFinales[indice] = entradaGratis.precioFinal;
+                    asientosOcupados[indice] = entradaGratis.numeroAsiento;
+                    
+                    System.out.println("Entrada gratis asignada al asiento " + entradaGratis.numeroAsiento + 
+                                      " en ubicacion " + entradaGratis.ubicacion);
                 }
             }
             
             System.out.println("\nVenta realizada con exito.");
             
             // Preguntar si desea seguir comprando
-            System.out.print("\nDesea comprar otra entrada? (S/N): ");
+            System.out.print("\n¿Desea comprar otra entrada? (S/N): ");
             String respuestaSeguirComprando = scanner.nextLine().toUpperCase();
             
             if (!respuestaSeguirComprando.equals("S")) {
@@ -277,7 +301,7 @@ public class TeatroMoro {
     }
     
     // Metodo para mostrar promociones disponibles
-    private static void mostrarPromociones() {
+    private void mostrarPromociones() {
         System.out.println("\n===== PROMOCIONES DISPONIBLES =====");
         System.out.println("1. Promocion Cumpleanos:");
         System.out.println("   - Una entrada GRATIS");
@@ -286,10 +310,12 @@ public class TeatroMoro {
         System.out.println("\n2. Descuentos por tipo de cliente:");
         System.out.println("   - Estudiantes: 10% de descuento");
         System.out.println("   - Tercera Edad: 15% de descuento");
+        System.out.println("\nIMPORTANTE: Todos los descuentos NO son acumulables.");
+        System.out.println("Se aplicara siempre el descuento mas beneficioso para el cliente.");
     }
     
     // Metodo para buscar entradas
-    private static void buscarEntradas(Scanner scanner) {
+    private void buscarEntradas(Scanner scanner) {
         if (totalEntradasVendidas == 0) {
             System.out.println("No hay entradas vendidas para buscar.");
             return;
@@ -343,7 +369,7 @@ public class TeatroMoro {
                 scanner.nextLine(); // Limpiar buffer
                 
                 if (tipoCompra == 1) {
-                    // Buscar compras regulares (sin descuento)
+                    // Buscar compras regulares 
                     System.out.println("\nEntradas con compra Regular (sin descuentos):");
                     for (int i = 0; i < totalEntradasVendidas; i++) {
                         if (tiposCliente[i].equals("Regular")) {
@@ -377,7 +403,7 @@ public class TeatroMoro {
     }
     
     // Metodo para eliminar una entrada
-    private static void eliminarEntrada(Scanner scanner) {
+    private void eliminarEntrada(Scanner scanner) {
         if (totalEntradasVendidas == 0) {
             System.out.println("No hay entradas para eliminar.");
             return;
@@ -420,6 +446,7 @@ public class TeatroMoro {
                 tiposCliente[i] = tiposCliente[i + 1];
                 preciosBase[i] = preciosBase[i + 1];
                 preciosFinales[i] = preciosFinales[i + 1];
+                asientosOcupados[i] = asientosOcupados[i + 1];
             }
             
             totalEntradasVendidas--;
@@ -429,17 +456,26 @@ public class TeatroMoro {
         }
     }
     
-    // Metodo para mostrar informacion de una entrada
-    private static void mostrarInfoEntrada(int indice) {
-        System.out.println("\n----- Entrada #" + numerosEntradas[indice] + " -----");
-        System.out.println("Ubicacion: " + ubicacionesEntradas[indice]);
-        System.out.println("Tipo de cliente: " + tiposCliente[indice]);
-        System.out.println("Precio base: $" + preciosBase[indice]);
-        System.out.println("Precio final: $" + preciosFinales[indice]);
+    // Metodo para mostrar informacion de una entrada 
+    private void mostrarInfoEntrada(int indice) {
+        // Cargar datos de la entrada en las variables de instancia para mostrarlos
+        this.numeroEntrada = numerosEntradas[indice];
+        this.ubicacion = ubicacionesEntradas[indice];
+        this.tipoCliente = tiposCliente[indice];
+        this.precioBase = preciosBase[indice];
+        this.precioFinal = preciosFinales[indice];
+        this.numeroAsiento = asientosOcupados[indice];
+        
+        System.out.println("\n----- Entrada #" + this.numeroEntrada + " -----");
+        System.out.println("Ubicacion: " + this.ubicacion);
+        System.out.println("Asiento: " + this.numeroAsiento);
+        System.out.println("Tipo de cliente: " + this.tipoCliente);
+        System.out.println("Precio base: $" + this.precioBase);
+        System.out.println("Precio final: $" + this.precioFinal);
     }
     
     // Metodo para verificar disponibilidad de asiento
-    private static boolean verificarDisponibilidadAsiento(String ubicacion, int numeroAsiento) {
+    private boolean verificarDisponibilidadAsiento(String ubicacion, int numeroAsiento) {
         if (ubicacion.equals("VIP")) {
             if (numeroAsiento < 1 || numeroAsiento > asientosVIP.length) {
                 return false;
@@ -460,7 +496,7 @@ public class TeatroMoro {
     }
     
     // Metodo para marcar asiento como ocupado
-    private static void marcarAsientoOcupado(String ubicacion, int numeroAsiento) {
+    private void marcarAsientoOcupado(String ubicacion, int numeroAsiento) {
         if (ubicacion.equals("VIP")) {
             asientosVIP[numeroAsiento - 1] = true;
         } else if (ubicacion.equals("Platea")) {
@@ -471,7 +507,7 @@ public class TeatroMoro {
     }
     
     // Metodo para mostrar el plano del teatro
-    private static void mostrarPlanoTeatro() {
+    private void mostrarPlanoTeatro() {
         System.out.println("\n===== PLANO DEL TEATRO =====");
         System.out.println("\n********************ESCENARIO********************");
         
@@ -502,7 +538,7 @@ public class TeatroMoro {
     }
     
     // Metodo para mostrar una fila de asientos
-    private static void mostrarFila(boolean[] asientos, int inicio, int fin, String etiqueta) {
+    private void mostrarFila(boolean[] asientos, int inicio, int fin, String etiqueta) {
         System.out.println(etiqueta);
         for (int i = inicio; i < fin; i++) {
             System.out.print(asientos[i] ? "  X  " : String.format(" %3d ", i + 1));
