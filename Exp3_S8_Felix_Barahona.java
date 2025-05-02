@@ -8,8 +8,6 @@ package exp3_s8_felix_barahona;
  *
  * @author felix
  */
-// File: Exp3_S8_Felix_Barahona.java
-
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -19,18 +17,18 @@ import java.util.Scanner;
 
 public class Exp3_S8_Felix_Barahona {
     public static void main(String[] args) {
-        // Initialize the theater
-        Theater theater = new Theater("Teatro Moro", 8, 10); // 8 rows, 10 seats per row
+        // Inicializar el teatro
+        Theater theater = new Theater("Teatro Moro", 8, 10); // 8 filas, 10 asientos por fila
         
-        // Initialize the sales system
+        // Inicializar el sistema de ventas
         SalesSystem salesSystem = new SalesSystem(theater);
         
-        // Run the interactive menu
+        // Ejecutar el menu interactivo
         salesSystem.runMenu();
     }
 }
 
-// Theater.java - Represents the theater with seats
+// Theater.java - Representa el teatro con asientos
 class Theater {
     private String name;
     private Seat[][] seats;
@@ -43,7 +41,7 @@ class Theater {
         this.seatsPerRow = seatsPerRow;
         this.seats = new Seat[rows][seatsPerRow];
         
-        // Initialize all seats
+        // Inicializar todos los asientos
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < seatsPerRow; j++) {
                 seats[i][j] = new Seat(i, j);
@@ -110,7 +108,7 @@ class Theater {
     }
 }
 
-// Seat.java - Represents a single seat in the theater
+// Seat.java - Representa un asiento individual en el teatro
 class Seat {
     private int row;
     private int seatNumber;
@@ -148,14 +146,14 @@ class Seat {
     }
 }
 
-// Customer.java - Represents a customer
+// Customer.java - Representa un cliente
 class Customer {
     private int id;
     private String name;
     private String email;
     private String phone;
     private CustomerType type;
-    private int age; // Added age field
+    private int age; // Campo de edad añadido
     
     public Customer(int id, String name, String email, String phone, CustomerType type, int age) {
         this.id = id;
@@ -201,14 +199,14 @@ class Customer {
     }
 }
 
-// CustomerType.java - Enum for different types of customers
+// CustomerType.java - Enumeracion para diferentes tipos de clientes
 enum CustomerType {
     REGULAR,
     STUDENT,
     SENIOR
 }
 
-// Sale.java - Represents a ticket sale
+// Sale.java - Representa una venta de entrada
 class Sale {
     private int id;
     private Customer customer;
@@ -216,7 +214,7 @@ class Sale {
     private double originalPrice;
     private double discountAmount;
     private double priceAfterDiscount;
-    private double iva; // Added IVA field
+    private double iva; // Campo IVA añadido
     private double finalPrice;
     private String date;
     
@@ -282,7 +280,7 @@ class Sale {
     }
 }
 
-// Reservation.java - Represents a seat reservation
+// Reservation.java - Representa una reserva de asiento
 class Reservation {
     private int id;
     private Customer customer;
@@ -323,7 +321,7 @@ class Reservation {
     }
 }
 
-// SalesSystem.java - Handles sales, discounts, and reservations
+// SalesSystem.java - Maneja ventas, descuentos y reservas
 class SalesSystem {
     private Theater theater;
     private Sale[] sales;
@@ -336,10 +334,10 @@ class SalesSystem {
     
     private static final int MAX_SALES = 1000;
     private static final int MAX_CUSTOMERS = 500;
-    private static final double BASE_TICKET_PRICE = 10000.0; // Base price in Chilean pesos
-    private static final double IVA_RATE = 0.19; // 19% IVA rate
+    private static final double BASE_TICKET_PRICE = 10000.0; // Precio base en pesos chilenos
+    private static final double IVA_RATE = 0.19; // Tasa de IVA del 19%
     
-    // Counters for customer types
+    // Contadores para tipos de clientes
     private int regularCustomers = 0;
     private int studentCustomers = 0;
     private int seniorCustomers = 0;
@@ -354,19 +352,19 @@ class SalesSystem {
         this.reservations = new ArrayList<>();
         this.scanner = new Scanner(System.in);
         
-        // Initialize default discounts
+        // Inicializar descuentos predeterminados
         initializeDiscounts();
     }
     
     private void initializeDiscounts() {
-        // Add student discount (10%)
+        // Añadir descuento para estudiantes (10%)
         discounts.add(new Discount("Descuento Estudiante", CustomerType.STUDENT, 0.10));
         
-        // Add senior discount (15%)
+        // Añadir descuento para adultos mayores (15%)
         discounts.add(new Discount("Descuento Adulto Mayor", CustomerType.SENIOR, 0.15));
     }
     
-    // Run the interactive menu
+    // Ejecutar el menu interactivo
     public void runMenu() {
         boolean exit = false;
         
@@ -384,7 +382,7 @@ class SalesSystem {
             
             try {
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Consume newline
+                scanner.nextLine(); // Consumir nueva línea
                 
                 switch (choice) {
                     case 1:
@@ -408,7 +406,7 @@ class SalesSystem {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Entrada invalida. Por favor ingrese un numero.");
-                scanner.nextLine(); // Consume invalid input
+                scanner.nextLine(); // Consumir entrada inválida
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -417,23 +415,23 @@ class SalesSystem {
         scanner.close();
     }
     
-    // Interactive method to sell a ticket
+    // Metodo interactivo para vender una entrada
     private void sellTicketInteractive() {
         try {
-            // Check if there are available seats
+            // Verificar si hay asientos disponibles
             if (theater.getAvailableSeatsCount() == 0) {
                 System.out.println("Lo sentimos, no hay asientos disponibles en el teatro.");
                 return;
             }
             
-            // Get customer information
+            // Obtener informacion del cliente
             Customer customer = getCustomerInfoInteractive();
             if (customer == null) return;
             
-            // Display seating chart
+            // Mostrar mapa de asientos
             theater.displaySeatingChart();
             
-            // Get seat selection
+            // Obtener seleccion de asiento
             int row = -1;
             int seatNumber = -1;
             boolean validSeat = false;
@@ -441,12 +439,12 @@ class SalesSystem {
             while (!validSeat) {
                 try {
                     System.out.print("Ingrese numero de fila (1-" + theater.getRows() + "): ");
-                    row = scanner.nextInt() - 1; // Convert to 0-based index
+                    row = scanner.nextInt() - 1; // Convertir a índice base 0
                     
                     System.out.print("Ingrese numero de asiento (1-" + theater.getSeatsPerRow() + "): ");
-                    seatNumber = scanner.nextInt() - 1; // Convert to 0-based index
+                    seatNumber = scanner.nextInt() - 1; // Convertir a índice base 0
                     
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine(); // Consumir nueva línea
                     
                     if (row < 0 || row >= theater.getRows() || seatNumber < 0 || seatNumber >= theater.getSeatsPerRow()) {
                         System.out.println("Seleccion de asiento invalida. Por favor intente de nuevo.");
@@ -457,21 +455,21 @@ class SalesSystem {
                     }
                 } catch (InputMismatchException e) {
                     System.out.println("Entrada invalida. Por favor ingrese un numero.");
-                    scanner.nextLine(); // Consume invalid input
+                    scanner.nextLine(); // Consumir entrada inválida
                 }
             }
             
-            // Sell the ticket
+            // Vender la entrada
             Sale sale = sellTicket(customer, row, seatNumber);
             
-            // Display sale details
+            // Mostrar detalles de la venta
             System.out.println("\nEntrada vendida exitosamente!");
             System.out.println("=== Detalles de la Venta ===");
             System.out.println("Cliente: " + sale.getCustomer().getName());
             System.out.println("Asiento: " + sale.getSeat());
             System.out.println("Precio Base: $" + sale.getOriginalPrice());
             
-            // Display discount if applicable
+            // Mostrar descuento si es aplicable
             if (sale.getDiscountAmount() > 0) {
                 System.out.println("Descuento: $" + sale.getDiscountAmount() + 
                         " (" + (sale.getDiscountAmount() / sale.getOriginalPrice() * 100) + "%)");
@@ -487,12 +485,12 @@ class SalesSystem {
         }
     }
     
-    // Helper method to get customer information interactively
+    // Metodo auxiliar para obtener informacion del cliente interactivamente
     private Customer getCustomerInfoInteractive() {
         try {
             System.out.println("\n=== Informacion del Cliente ===");
             
-            // Get name
+            // Obtener nombre
             System.out.print("Ingrese nombre del cliente: ");
             String name = scanner.nextLine();
             while (name.trim().isEmpty()) {
@@ -500,14 +498,14 @@ class SalesSystem {
                 name = scanner.nextLine();
             }
             
-            // Get age
+            // Obtener edad
             int age = 0;
             boolean validAge = false;
             while (!validAge) {
                 try {
                     System.out.print("Ingrese edad del cliente: ");
                     age = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine(); // Consumir nueva línea
                     
                     if (age > 0 && age < 120) {
                         validAge = true;
@@ -516,11 +514,11 @@ class SalesSystem {
                     }
                 } catch (InputMismatchException e) {
                     System.out.println("Entrada invalida. Por favor ingrese un numero.");
-                    scanner.nextLine(); // Consume invalid input
+                    scanner.nextLine(); // Consumir entrada inválida
                 }
             }
             
-            // Get email
+            // Obtener email
             System.out.print("Ingrese email del cliente: ");
             String email = scanner.nextLine();
             while (!email.contains("@") || email.trim().isEmpty()) {
@@ -528,7 +526,7 @@ class SalesSystem {
                 email = scanner.nextLine();
             }
             
-            // Get phone
+            // Obtener telefono
             System.out.print("Ingrese telefono del cliente: ");
             String phone = scanner.nextLine();
             while (phone.trim().isEmpty()) {
@@ -536,7 +534,7 @@ class SalesSystem {
                 phone = scanner.nextLine();
             }
             
-            // Determine customer type based on age and student status
+            // Determinar tipo de cliente basado en edad y estado de estudiante
             CustomerType type = CustomerType.REGULAR;
             
             if (age >= 60) {
@@ -559,7 +557,7 @@ class SalesSystem {
                 }
             }
             
-            // Add the customer
+            // Añadir el cliente
             return addCustomer(name, email, phone, type, age);
             
         } catch (Exception e) {
@@ -568,7 +566,7 @@ class SalesSystem {
         }
     }
     
-    // Display all customers
+    // Mostrar todos los clientes
     private void displayAllCustomers() {
         if (customerCount == 0) {
             System.out.println("No hay clientes registrados aun.");
@@ -586,7 +584,7 @@ class SalesSystem {
         }
     }
     
-    // Generate a sales report
+    // Generar un reporte de ventas
     private void generateSalesReport() {
         if (salesCount == 0) {
             System.out.println("No hay datos de ventas disponibles para el reporte.");
@@ -595,7 +593,7 @@ class SalesSystem {
         
         System.out.println("\n===== REPORTE DE VENTAS =====");
         
-        // Calculate totals
+        // Calcular totales
         int totalSales = salesCount;
         double totalNetRevenue = 0;
         double totalIva = 0;
@@ -625,7 +623,7 @@ class SalesSystem {
             }
         }
         
-        // Display report
+        // Mostrar reporte
         System.out.println("Total entradas vendidas: " + totalSales);
         System.out.println("Ingresos netos (antes de IVA): $" + totalNetRevenue);
         System.out.println("Total IVA recaudado: $" + totalIva);
@@ -648,9 +646,9 @@ class SalesSystem {
         System.out.printf("Tasa de ocupacion: %.2f%%\n", occupancyRate);
     }
     
-    // Add a new customer
+    // Añadir un nuevo cliente
     public Customer addCustomer(String name, String email, String phone, CustomerType type, int age) {
-        // Validate input
+        // Validar entrada
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del cliente no puede estar vacio");
         }
@@ -664,12 +662,12 @@ class SalesSystem {
             throw new IllegalArgumentException("Edad invalida");
         }
         
-        // Check if we have space for a new customer
+        // Verificar si tenemos espacio para un nuevo cliente
         if (customerCount >= MAX_CUSTOMERS) {
             throw new RuntimeException("Se ha alcanzado el numero maximo de clientes");
         }
         
-        // Create and add the new customer
+        // Crear y añadir el nuevo cliente
         Customer customer = new Customer(customerCount + 1, name, email, phone, type, age);
         customers[customerCount] = customer;
         customerCount++;
@@ -677,7 +675,7 @@ class SalesSystem {
         return customer;
     }
     
-    // Find a customer by ID
+    // Encontrar un cliente por ID
     public Customer findCustomerById(int id) {
         for (int i = 0; i < customerCount; i++) {
             if (customers[i].getId() == id) {
@@ -687,23 +685,23 @@ class SalesSystem {
         return null;
     }
     
-    // Sell a ticket
+    // Vender una entrada
     public Sale sellTicket(Customer customer, int row, int seatNumber) {
-        // Validate input
+        // Validar entrada
         if (customer == null) {
             throw new IllegalArgumentException("El cliente no puede ser nulo");
         }
         
-        // Check if the seat is available
+        // Verificar si el asiento está disponible
         if (!theater.isSeatAvailable(row, seatNumber)) {
             throw new IllegalArgumentException("El asiento no esta disponible");
         }
         
-        // Get the seat and mark it as reserved
+        // Obtener el asiento y marcarlo como reservado
         Seat seat = theater.getSeat(row, seatNumber);
         seat.reserve();
         
-        // Calculate the price with applicable discounts
+        // Calcular el precio con descuentos aplicables
         double originalPrice = BASE_TICKET_PRICE;
         double discountRate = getDiscountRate(customer);
         double discountAmount = originalPrice * discountRate;
@@ -711,12 +709,12 @@ class SalesSystem {
         double iva = priceAfterDiscount * IVA_RATE;
         double finalPrice = priceAfterDiscount + iva;
         
-        // Create the sale record
+        // Crear el registro de venta
         String date = getCurrentDate();
         Sale sale = new Sale(salesCount + 1, customer, seat, originalPrice, discountAmount, 
                             priceAfterDiscount, iva, finalPrice, date);
         
-        // Add the sale to the array
+        // Añadir la venta al arreglo
         if (salesCount >= MAX_SALES) {
             throw new RuntimeException("Se ha alcanzado el numero maximo de ventas");
         }
@@ -726,7 +724,7 @@ class SalesSystem {
         return sale;
     }
     
-    // Get discount rate for a customer
+    // Obtener tasa de descuento para un cliente
     private double getDiscountRate(Customer customer) {
         for (Discount discount : discounts) {
             if (discount.getCustomerType() == customer.getType()) {
@@ -736,28 +734,28 @@ class SalesSystem {
         return 0.0;
     }
     
-    // Get all sales
+    // Obtener todas las ventas
     public Sale[] getAllSales() {
         Sale[] result = new Sale[salesCount];
         System.arraycopy(sales, 0, result, 0, salesCount);
         return result;
     }
     
-    // Get all customers
+    // Obtener todos los clientes
     public Customer[] getAllCustomers() {
         Customer[] result = new Customer[customerCount];
         System.arraycopy(customers, 0, result, 0, customerCount);
         return result;
     }
     
-    // Get current date as string
+    // Obtener fecha actual como cadena
     private String getCurrentDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return dateFormat.format(new Date());
     }
 }
 
-// Discount.java - Represents a discount type
+// Discount.java - Representa un tipo de descuento
 class Discount {
     private String name;
     private CustomerType customerType;
