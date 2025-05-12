@@ -21,8 +21,7 @@ import java.text.SimpleDateFormat;
  * Clase principal del sistema de venta de entradas para Teatro Moro
  * Esta clase inicia el sistema y contiene el metodo main
  */
-public class EFT_S9_Felix_Barahona {
-    
+public class EFT_S9_Felix_Barahona { 
     public static void main(String[] args) {
         try {
             // Inicializacion del sistema
@@ -431,6 +430,272 @@ class TheaterStats {
 }
 
 /**
+ * Clase para realizar pruebas automatizadas del sistema
+ */
+class TheaterSystemTester {
+    
+    /**
+     * Ejecuta todas las pruebas del sistema
+     * @return true si todas las pruebas pasan, false en caso contrario
+     */
+    public static boolean runAllTests() {
+        ConsoleUI.printTitle("EJECUTANDO PRUEBAS DEL SISTEMA");
+        
+        boolean allTestsPassed = true;
+        
+        // Ejecutar cada prueba y acumular resultados
+        allTestsPassed &= testTheaterInitialization();
+        allTestsPassed &= testSeatAvailability();
+        allTestsPassed &= testDiscountCalculation();
+        allTestsPassed &= testTicketCreation();
+        allTestsPassed &= testDataPersistence();
+        allTestsPassed &= testExceptionHandling();
+        
+        // Mostrar resultado final
+        if (allTestsPassed) {
+            ConsoleUI.printSuccess("TODAS LAS PRUEBAS PASARON CORRECTAMENTE");
+        } else {
+            ConsoleUI.printError("ALGUNAS PRUEBAS FALLARON");
+        }
+        
+        return allTestsPassed;
+    }
+    
+    /**
+     * Prueba la inicialización correcta del teatro y sus secciones
+     */
+    private static boolean testTheaterInitialization() {
+        ConsoleUI.printSubtitle("Prueba: Inicialización del Teatro");
+        
+        try {
+            Theater theater = new Theater("Teatro de Prueba");
+            
+            // Verificar que se crearon las secciones
+            if (theater.sections.size() != 5) {
+                ConsoleUI.printError("Error: No se crearon las 5 secciones esperadas");
+                return false;
+            }
+            
+            // Verificar que cada sección tiene asientos
+            for (Section section : theater.sections) {
+                if (section.rows <= 0 || section.columns <= 0) {
+                    ConsoleUI.printError("Error: La sección " + section.name + " no tiene dimensiones válidas");
+                    return false;
+                }
+            }
+            
+            ConsoleUI.printSuccess("Inicialización del teatro correcta");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error inesperado: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Prueba la disponibilidad de asientos
+     */
+    private static boolean testSeatAvailability() {
+        ConsoleUI.printSubtitle("Prueba: Disponibilidad de Asientos");
+        
+        try {
+            Theater theater = new Theater("Teatro de Prueba");
+            Section section = theater.sections.get(0);
+            
+            // Verificar que todos los asientos están disponibles inicialmente
+            Seat seat = section.getSeat('A', 1);
+            if (!seat.available) {
+                ConsoleUI.printError("Error: El asiento debería estar disponible inicialmente");
+                return false;
+            }
+            
+            // Marcar un asiento como ocupado
+            seat.available = false;
+            
+            // Verificar que el asiento ahora está ocupado
+            if (seat.available) {
+                ConsoleUI.printError("Error: El asiento debería estar ocupado después de marcarlo");
+                return false;
+            }
+            
+            ConsoleUI.printSuccess("Gestión de disponibilidad de asientos correcta");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error inesperado: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Prueba el cálculo de descuentos
+     */
+    private static boolean testDiscountCalculation() {
+        ConsoleUI.printSubtitle("Prueba: Cálculo de Descuentos");
+        
+        try {
+            // Crear instancia del sistema para usar su método de cálculo de descuentos
+            TheaterSystem system = new TheaterSystem();
+            
+            // Probar descuento para niño (10%)
+            Customer child = new Customer("Niño Prueba", 10, 'M', false);
+            double childDiscount = system.calculateDiscount(child, 100);
+            if (Math.abs(childDiscount - 10.0) > 0.01) {
+                ConsoleUI.printError("Error: El descuento para niños debería ser 10%, pero fue " + childDiscount + "%");
+                return false;
+            }
+            
+            // Probar descuento para mujer (20%)
+            Customer woman = new Customer("Mujer Prueba", 30, 'F', false);
+            double womanDiscount = system.calculateDiscount(woman, 100);
+            if (Math.abs(womanDiscount - 20.0) > 0.01) {
+                ConsoleUI.printError("Error: El descuento para mujeres debería ser 20%, pero fue " + womanDiscount + "%");
+                return false;
+            }
+            
+            // Probar descuento para estudiante (15%)
+            Customer student = new Customer("Estudiante Prueba", 20, 'M', true);
+            double studentDiscount = system.calculateDiscount(student, 100);
+            if (Math.abs(studentDiscount - 15.0) > 0.01) {
+                ConsoleUI.printError("Error: El descuento para estudiantes debería ser 15%, pero fue " + studentDiscount + "%");
+                return false;
+            }
+            
+            // Probar descuento para tercera edad (25%)
+            Customer senior = new Customer("Mayor Prueba", 70, 'M', false);
+            double seniorDiscount = system.calculateDiscount(senior, 100);
+            if (Math.abs(seniorDiscount - 25.0) > 0.01) {
+                ConsoleUI.printError("Error: El descuento para tercera edad debería ser 25%, pero fue " + seniorDiscount + "%");
+                return false;
+            }
+            
+            ConsoleUI.printSuccess("Cálculo de descuentos correcto");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error inesperado: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Prueba la creación de tickets
+     */
+    private static boolean testTicketCreation() {
+        ConsoleUI.printSubtitle("Prueba: Creación de Tickets");
+        
+        try {
+            Theater theater = new Theater("Teatro de Prueba");
+            Section section = theater.sections.get(0);
+            Seat seat = section.getSeat('A', 1);
+            Customer customer = new Customer("Cliente Prueba", 30, 'M', false);
+            
+            // Crear un ticket
+            Ticket ticket = new Ticket(customer, section, seat, 45000);
+            
+            // Verificar que el ticket se creó correctamente
+            if (ticket.customer != customer || ticket.section != section || 
+                ticket.seat != seat || Math.abs(ticket.price - 45000) > 0.01) {
+                ConsoleUI.printError("Error: El ticket no se creó con los valores correctos");
+                return false;
+            }
+            
+            ConsoleUI.printSuccess("Creación de tickets correcta");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error inesperado: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Prueba la persistencia de datos
+     */
+    private static boolean testDataPersistence() {
+        ConsoleUI.printSubtitle("Prueba: Persistencia de Datos");
+        
+        try {
+            // Crear datos de prueba
+            Theater theater = new Theater("Teatro de Prueba");
+            Section section = theater.sections.get(0);
+            Seat seat = section.getSeat('A', 1);
+            Customer customer = new Customer("Cliente Prueba", 30, 'M', false);
+            Ticket ticket = new Ticket(customer, section, seat, 45000);
+            
+            ArrayList<Ticket> testSales = new ArrayList<>();
+            testSales.add(ticket);
+            
+            // Guardar datos
+            DataManager.saveSales(testSales);
+            
+            // Cargar datos
+            ArrayList<Ticket> loadedSales = DataManager.loadSales();
+            
+            // Verificar que los datos se cargaron correctamente
+            if (loadedSales.size() != 1) {
+                ConsoleUI.printError("Error: No se cargó correctamente la venta guardada");
+                return false;
+            }
+            
+            Ticket loadedTicket = loadedSales.get(0);
+            if (!loadedTicket.customer.name.equals(customer.name) || 
+                !loadedTicket.section.name.equals(section.name) ||
+                !loadedTicket.seat.getPosition().equals(seat.getPosition()) ||
+                Math.abs(loadedTicket.price - 45000) > 0.01) {
+                ConsoleUI.printError("Error: Los datos cargados no coinciden con los guardados");
+                return false;
+            }
+            
+            ConsoleUI.printSuccess("Persistencia de datos correcta");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error en prueba de persistencia: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Prueba el manejo de excepciones
+     */
+    private static boolean testExceptionHandling() {
+        ConsoleUI.printSubtitle("Prueba: Manejo de Excepciones");
+        
+        try {
+            // Probar validación de datos de cliente
+            try {
+                Validator.validateCustomerData("", -5, 'X');
+                ConsoleUI.printError("Error: No se lanzó excepción con datos inválidos de cliente");
+                return false;
+            } catch (InvalidCustomerDataException e) {
+                // Excepción esperada
+            }
+            
+            // Probar validación de sección
+            try {
+                Validator.validateSectionSelection(10, 5);
+                ConsoleUI.printError("Error: No se lanzó excepción con sección inválida");
+                return false;
+            } catch (InvalidSectionException e) {
+                // Excepción esperada
+            }
+            
+            // Probar validación de formato de asiento
+            try {
+                Validator.validateSeatFormat("Z12");
+                ConsoleUI.printError("Error: No se lanzó excepción con formato de asiento inválido");
+                return false;
+            } catch (InvalidSeatException e) {
+                // Excepción esperada
+            }
+            
+            ConsoleUI.printSuccess("Manejo de excepciones correcto");
+            return true;
+        } catch (Exception e) {
+            ConsoleUI.printError("Error inesperado: " + e.getMessage());
+            return false;
+        }
+    }
+}
+
+/**
  * Clase que maneja toda la logica del sistema de venta de entradas
  * Contiene metodos para vender entradas, mostrar disponibilidad y ventas
  */
@@ -500,6 +765,9 @@ class TheaterSystem {
                         deleteTicket();
                         break;
                     case 8:
+                        TheaterSystemTester.runAllTests();
+                        break;
+                    case 9:
                         ConsoleUI.printSuccess("Gracias por usar el sistema de venta de entradas del Teatro Moro");
                         exit = true;
                         break;
@@ -526,7 +794,8 @@ class TheaterSystem {
         ConsoleUI.printMenuOption(5, "Generar reporte de ventas");
         ConsoleUI.printMenuOption(6, "Guardar datos");
         ConsoleUI.printMenuOption(7, "Borrar venta");
-        ConsoleUI.printMenuOption(8, "Salir");
+        ConsoleUI.printMenuOption(8, "Ejecutar pruebas del sistema");
+        ConsoleUI.printMenuOption(9, "Salir");
         System.out.print("Seleccione una opcion: ");
     }
     
@@ -664,11 +933,11 @@ class TheaterSystem {
      * @param originalPrice Precio original de la entrada
      * @return Monto del descuento a aplicar
      */
-    private double calculateDiscount(Customer customer, double originalPrice) {
+        public double calculateDiscount(Customer customer, double originalPrice) {
         double discountPercentage = 0;
         
         // Aplicar el mayor descuento disponible
-        if (customer.age >= 65) {
+        if (customer.age >= 60) {
             // Tercera edad: 25%
             discountPercentage = 0.25;
         } else if (customer.gender == 'F') {
